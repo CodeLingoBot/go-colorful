@@ -14,7 +14,7 @@ type GradientTable []struct {
 	Pos float64
 }
 
-// This is the meat of the gradient computation. It returns a HCL-blend between
+// GetInterpolatedColorFor is the meat of the gradient computation. It returns a HCL-blend between
 // the two colors around `t`.
 // Note: It relies heavily on the fact that the gradient keypoints are sorted.
 func (self GradientTable) GetInterpolatedColorFor(t float64) colorful.Color {
@@ -32,7 +32,7 @@ func (self GradientTable) GetInterpolatedColorFor(t float64) colorful.Color {
 	return self[len(self)-1].Col
 }
 
-// This is a very nice thing Golang forces you to do!
+// MustParseHex is a very nice thing Golang forces you to do!
 // It is necessary so that we can write out the literal of the colortable below.
 func MustParseHex(s string) colorful.Color {
 	c, err := colorful.Hex(s)

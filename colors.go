@@ -12,7 +12,7 @@ type Color struct {
 	R, G, B float64
 }
 
-// Implement the Go color.Color interface.
+// RGBA: Implement the Go color.Color interface.
 func (col Color) RGBA() (r, g, b, a uint32) {
 	r = uint32(col.R*65535.0 + 0.5)
 	g = uint32(col.G*65535.0 + 0.5)
@@ -21,7 +21,7 @@ func (col Color) RGBA() (r, g, b, a uint32) {
 	return
 }
 
-// Constructs a colorful.Color from something implementing color.Color
+// MakeColor: Constructs a colorful.Color from something implementing color.Color
 func MakeColor(col color.Color) (Color, bool) {
 	r, g, b, a := col.RGBA()
 	if a == 0 {
@@ -40,7 +40,7 @@ func MakeColor(col color.Color) (Color, bool) {
 	return Color{float64(r) / 65535.0, float64(g) / 65535.0, float64(b) / 65535.0}, true
 }
 
-// Might come in handy sometimes to reduce boilerplate code.
+// RGB255: Might come in handy sometimes to reduce boilerplate code.
 func (col Color) RGB255() (r, g, b uint8) {
 	r = uint8(col.R*255.0 + 0.5)
 	g = uint8(col.G*255.0 + 0.5)
@@ -57,7 +57,7 @@ var D65 = [3]float64{0.95047, 1.00000, 1.08883}
 // And another one.
 var D50 = [3]float64{0.96422, 1.00000, 0.82521}
 
-// Checks whether the color exists in RGB space, i.e. all values are in [0..1]
+// IsValid checks whether the color exists in RGB space, i.e. all values are in [0..1]
 func (c Color) IsValid() bool {
 	return 0.0 <= c.R && c.R <= 1.0 &&
 		0.0 <= c.G && c.G <= 1.0 &&
@@ -68,7 +68,7 @@ func clamp01(v float64) float64 {
 	return math.Max(0.0, math.Min(v, 1.0))
 }
 
-// Returns Clamps the color into valid range, clamping each value to [0..1]
+// Clamped returns Clamps the color into valid range, clamping each value to [0..1]
 // If the color is valid already, this is a no-op.
 func (c Color) Clamped() Color {
 	return Color{clamp01(c.R), clamp01(c.G), clamp01(c.B)}
@@ -88,14 +88,14 @@ func (c1 Color) DistanceRgb(c2 Color) float64 {
 	return math.Sqrt(sq(c1.R-c2.R) + sq(c1.G-c2.G) + sq(c1.B-c2.B))
 }
 
-// Check for equality between colors within the tolerance Delta (1/255).
+// AlmostEqualRgb checks for equality between colors within the tolerance Delta (1/255).
 func (c1 Color) AlmostEqualRgb(c2 Color) bool {
 	return math.Abs(c1.R-c2.R)+
 		math.Abs(c1.G-c2.G)+
 		math.Abs(c1.B-c2.B) < 3.0*Delta
 }
 
-// You don't really want to use this, do you? Go for BlendLab, BlendLuv or BlendHcl.
+// BlendRgb: You don't really want to use this, do you? Go for BlendLab, BlendLuv or BlendHcl.
 func (c1 Color) BlendRgb(c2 Color, t float64) Color {
 	return Color{c1.R + t*(c2.R-c1.R),
 		c1.G + t*(c2.G-c1.G),
@@ -178,7 +178,7 @@ func Hsv(H, S, V float64) Color {
 	return Color{m + r, m + g, m + b}
 }
 
-// You don't really want to use this, do you? Go for BlendLab, BlendLuv or BlendHcl.
+// BlendHsv: You don't really want to use this, do you? Go for BlendLab, BlendLuv or BlendHcl.
 func (c1 Color) BlendHsv(c2 Color, t float64) Color {
 	h1, s1, v1 := c1.Hsv()
 	h2, s2, v2 := c2.Hsv()
@@ -451,7 +451,7 @@ func Xyz(x, y, z float64) Color {
 ///////////
 // http://www.brucelindbloom.com/Eqn_XYZ_to_xyY.html
 
-// Well, the name is bad, since it's xyY but Golang needs me to start with a
+// XyzToXyy: Well, the name is bad, since it's xyY but Golang needs me to start with a
 // capital letter to make the method public.
 func XyzToXyy(X, Y, Z float64) (x, y, Yout float64) {
 	return XyzToXyyWhiteRef(X, Y, Z, D65)
@@ -486,14 +486,14 @@ func XyyToXyz(x, y, Y float64) (X, Yout, Z float64) {
 	return
 }
 
-// Converts the given color to CIE xyY space using D65 as reference white.
+// Xyy: Converts the given color to CIE xyY space using D65 as reference white.
 // (Note that the reference white is only used for black input.)
 // x, y and Y are in [0..1]
 func (col Color) Xyy() (x, y, Y float64) {
 	return XyzToXyy(col.Xyz())
 }
 
-// Converts the given color to CIE xyY space, taking into account
+// XyyWhiteRef: Converts the given color to CIE xyY space, taking into account
 // a given reference white. (i.e. the monitor's white)
 // (Note that the reference white is only used for black input.)
 // x, y and Y are in [0..1]
@@ -502,7 +502,7 @@ func (col Color) XyyWhiteRef(wref [3]float64) (x, y, Y float64) {
 	return XyzToXyyWhiteRef(X, Y2, Z, wref)
 }
 
-// Generates a color by using data given in CIE xyY space.
+// Xyy: Generates a color by using data given in CIE xyY space.
 // x, y and Y are in [0..1]
 func Xyy(x, y, Y float64) Color {
 	return Xyz(XyyToXyz(x, y, Y))
@@ -555,26 +555,26 @@ func LabToXyzWhiteRef(l, a, b float64, wref [3]float64) (x, y, z float64) {
 	return
 }
 
-// Converts the given color to CIE L*a*b* space using D65 as reference white.
+// Lab: Converts the given color to CIE L*a*b* space using D65 as reference white.
 func (col Color) Lab() (l, a, b float64) {
 	return XyzToLab(col.Xyz())
 }
 
-// Converts the given color to CIE L*a*b* space, taking into account
+// LabWhiteRef: Converts the given color to CIE L*a*b* space, taking into account
 // a given reference white. (i.e. the monitor's white)
 func (col Color) LabWhiteRef(wref [3]float64) (l, a, b float64) {
 	x, y, z := col.Xyz()
 	return XyzToLabWhiteRef(x, y, z, wref)
 }
 
-// Generates a color by using data given in CIE L*a*b* space using D65 as reference white.
+// Lab: Generates a color by using data given in CIE L*a*b* space using D65 as reference white.
 // WARNING: many combinations of `l`, `a`, and `b` values do not have corresponding
 //          valid RGB values, check the FAQ in the README if you're unsure.
 func Lab(l, a, b float64) Color {
 	return Xyz(LabToXyz(l, a, b))
 }
 
-// Generates a color by using data given in CIE L*a*b* space, taking
+// LabWhiteRef: Generates a color by using data given in CIE L*a*b* space, taking
 // into account a given reference white. (i.e. the monitor's white)
 func LabWhiteRef(l, a, b float64, wref [3]float64) Color {
 	return Xyz(LabToXyzWhiteRef(l, a, b, wref))
@@ -589,12 +589,12 @@ func (c1 Color) DistanceLab(c2 Color) float64 {
 	return math.Sqrt(sq(l1-l2) + sq(a1-a2) + sq(b1-b2))
 }
 
-// That's actually the same, but I don't want to break code.
+// DistanceCIE76: That's actually the same, but I don't want to break code.
 func (c1 Color) DistanceCIE76(c2 Color) float64 {
 	return c1.DistanceLab(c2)
 }
 
-// Uses the CIE94 formula to calculate color distance. More accurate than
+// DistanceCIE94: Uses the CIE94 formula to calculate color distance. More accurate than
 // DistanceLab, but also more work.
 func (cl Color) DistanceCIE94(cr Color) float64 {
 	l1, a1, b1 := cl.Lab()
@@ -787,13 +787,13 @@ func LuvToXyzWhiteRef(l, u, v float64, wref [3]float64) (x, y, z float64) {
 	return
 }
 
-// Converts the given color to CIE L*u*v* space using D65 as reference white.
+// Luv: Converts the given color to CIE L*u*v* space using D65 as reference white.
 // L* is in [0..1] and both u* and v* are in about [-1..1]
 func (col Color) Luv() (l, u, v float64) {
 	return XyzToLuv(col.Xyz())
 }
 
-// Converts the given color to CIE L*u*v* space, taking into account
+// LuvWhiteRef: Converts the given color to CIE L*u*v* space, taking into account
 // a given reference white. (i.e. the monitor's white)
 // L* is in [0..1] and both u* and v* are in about [-1..1]
 func (col Color) LuvWhiteRef(wref [3]float64) (l, u, v float64) {
@@ -801,7 +801,7 @@ func (col Color) LuvWhiteRef(wref [3]float64) (l, u, v float64) {
 	return XyzToLuvWhiteRef(x, y, z, wref)
 }
 
-// Generates a color by using data given in CIE L*u*v* space using D65 as reference white.
+// Luv: Generates a color by using data given in CIE L*u*v* space using D65 as reference white.
 // L* is in [0..1] and both u* and v* are in about [-1..1]
 // WARNING: many combinations of `l`, `a`, and `b` values do not have corresponding
 //          valid RGB values, check the FAQ in the README if you're unsure.
@@ -809,7 +809,7 @@ func Luv(l, u, v float64) Color {
 	return Xyz(LuvToXyz(l, u, v))
 }
 
-// Generates a color by using data given in CIE L*u*v* space, taking
+// LuvWhiteRef: Generates a color by using data given in CIE L*u*v* space, taking
 // into account a given reference white. (i.e. the monitor's white)
 // L* is in [0..1] and both u* and v* are in about [-1..1]
 func LuvWhiteRef(l, u, v float64, wref [3]float64) Color {
@@ -842,7 +842,7 @@ func (c1 Color) BlendLuv(c2 Color, t float64) Color {
 // But it is widely popular since it is a "correct HSV"
 // http://www.hunterlab.com/appnotes/an09_96a.pdf
 
-// Converts the given color to HCL space using D65 as reference white.
+// Hcl: Converts the given color to HCL space using D65 as reference white.
 // H values are in [0..360], C and L values are in [0..1] although C can overshoot 1.0
 func (col Color) Hcl() (h, c, l float64) {
 	return col.HclWhiteRef(D65)
@@ -860,7 +860,7 @@ func LabToHcl(L, a, b float64) (h, c, l float64) {
 	return
 }
 
-// Converts the given color to HCL space, taking into account
+// HclWhiteRef: Converts the given color to HCL space, taking into account
 // a given reference white. (i.e. the monitor's white)
 // H values are in [0..360], C and L values are in [0..1]
 func (col Color) HclWhiteRef(wref [3]float64) (h, c, l float64) {
@@ -868,7 +868,7 @@ func (col Color) HclWhiteRef(wref [3]float64) (h, c, l float64) {
 	return LabToHcl(L, a, b)
 }
 
-// Generates a color by using data given in HCL space using D65 as reference white.
+// Hcl: Generates a color by using data given in HCL space using D65 as reference white.
 // H values are in [0..360], C and L values are in [0..1]
 // WARNING: many combinations of `l`, `a`, and `b` values do not have corresponding
 //          valid RGB values, check the FAQ in the README if you're unsure.
@@ -884,7 +884,7 @@ func HclToLab(h, c, l float64) (L, a, b float64) {
 	return
 }
 
-// Generates a color by using data given in HCL space, taking
+// HclWhiteRef: Generates a color by using data given in HCL space, taking
 // into account a given reference white. (i.e. the monitor's white)
 // H values are in [0..360], C and L values are in [0..1]
 func HclWhiteRef(h, c, l float64, wref [3]float64) Color {

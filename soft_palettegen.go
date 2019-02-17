@@ -27,7 +27,7 @@ type SoftPaletteSettings struct {
 	ManySamples bool
 }
 
-// Yeah, windows-stype Foo, FooEx, screw you golang...
+// SoftPaletteEx: Yeah, windows-stype Foo, FooEx, screw you golang...
 // Uses K-means to cluster the color-space and return the means of the clusters
 // as a new palette of distinctive colors. Falls back to K-medoid if the mean
 // happens to fall outside of the color-space, which can only happen if you
@@ -148,7 +148,7 @@ func SoftPaletteEx(colorsCount int, settings SoftPaletteSettings) ([]Color, erro
 	return labs2cols(means), nil
 }
 
-// A wrapper which uses common parameters.
+// SoftPalette: A wrapper which uses common parameters.
 func SoftPalette(colorsCount int) ([]Color, error) {
 	return SoftPaletteEx(colorsCount, SoftPaletteSettings{nil, 50, false})
 }
